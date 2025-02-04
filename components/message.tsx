@@ -1,29 +1,29 @@
-'use client';
+"use client";
 
-import type { ChatRequestOptions, Message } from 'ai';
-import cx from 'classnames';
-import { AnimatePresence, motion } from 'framer-motion';
-import { memo, useMemo, useState, useEffect } from 'react';
+import type { ChatRequestOptions, Message } from "ai";
+import cx from "classnames";
+import { AnimatePresence, motion } from "framer-motion";
+import { memo, useMemo, useState, useEffect } from "react";
 
-import type { Vote } from '@/lib/db/schema';
+import type { Vote } from "@/lib/db/schema";
 
-import { DocumentToolCall, DocumentToolResult } from './document';
-import { PencilEditIcon, SparklesIcon } from './icons';
-import { Markdown } from './markdown';
-import { MessageActions } from './message-actions';
-import { PreviewAttachment } from './preview-attachment';
-import { Weather } from './weather';
-import equal from 'fast-deep-equal';
-import { cn } from '@/lib/utils';
-import { Button } from './ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
-import { MessageEditor } from './message-editor';
-import { DocumentPreview } from './document-preview';
-import { SearchResults } from './search-results';
-import { ExtractResults } from './extract-results';
-import { ScrapeResults } from './scrape-results';
-import { useDeepResearch } from '@/lib/deep-research-context';
-import { Progress } from './ui/progress';
+import { DocumentToolCall, DocumentToolResult } from "./document";
+import { PencilEditIcon, SparklesIcon } from "./icons";
+import { Markdown } from "./markdown";
+import { MessageActions } from "./message-actions";
+import { PreviewAttachment } from "./preview-attachment";
+import { Weather } from "./weather";
+import equal from "fast-deep-equal";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { MessageEditor } from "./message-editor";
+import { DocumentPreview } from "./document-preview";
+import { SearchResults } from "./search-results";
+import { ExtractResults } from "./extract-results";
+import { ScrapeResults } from "./scrape-results";
+import { useDeepResearch } from "@/lib/deep-research-context";
+import { Progress } from "./ui/progress";
 
 const PurePreviewMessage = ({
   chatId,
@@ -39,14 +39,14 @@ const PurePreviewMessage = ({
   vote: Vote | undefined;
   isLoading: boolean;
   setMessages: (
-    messages: Message[] | ((messages: Message[]) => Message[]),
+    messages: Message[] | ((messages: Message[]) => Message[])
   ) => void;
   reload: (
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   isReadonly: boolean;
 }) => {
-  const [mode, setMode] = useState<'view' | 'edit'>('view');
+  const [mode, setMode] = useState<"view" | "edit">("view");
   const { addActivity, addSource, initProgress, setDepth, updateProgress } =
     useDeepResearch();
 
@@ -54,11 +54,11 @@ const PurePreviewMessage = ({
     if (message.toolInvocations) {
       message.toolInvocations.forEach((toolInvocation: any) => {
         try {
-          if (toolInvocation.toolName === 'deepResearch') {
+          if (toolInvocation.toolName === "deepResearch") {
             // Handle progress initialization
             if (
-              'delta' in toolInvocation &&
-              toolInvocation.delta?.type === 'progress-init'
+              "delta" in toolInvocation &&
+              toolInvocation.delta?.type === "progress-init"
             ) {
               const { maxDepth, totalSteps } = toolInvocation.delta.content;
               initProgress(maxDepth, totalSteps);
@@ -66,8 +66,8 @@ const PurePreviewMessage = ({
 
             // Handle depth updates
             if (
-              'delta' in toolInvocation &&
-              toolInvocation.delta?.type === 'depth-delta'
+              "delta" in toolInvocation &&
+              toolInvocation.delta?.type === "depth-delta"
             ) {
               const { current, max } = toolInvocation.delta.content;
               setDepth(current, max);
@@ -75,8 +75,8 @@ const PurePreviewMessage = ({
 
             // Handle activity updates
             if (
-              'delta' in toolInvocation &&
-              toolInvocation.delta?.type === 'activity-delta'
+              "delta" in toolInvocation &&
+              toolInvocation.delta?.type === "activity-delta"
             ) {
               const activity = toolInvocation.delta.content;
               addActivity(activity);
@@ -91,15 +91,15 @@ const PurePreviewMessage = ({
 
             // Handle source updates
             if (
-              'delta' in toolInvocation &&
-              toolInvocation.delta?.type === 'source-delta'
+              "delta" in toolInvocation &&
+              toolInvocation.delta?.type === "source-delta"
             ) {
               addSource(toolInvocation.delta.content);
             }
 
             // Handle final result
             if (
-              toolInvocation.state === 'result' &&
+              toolInvocation.state === "result" &&
               toolInvocation.result?.success
             ) {
               const { completedSteps, totalSteps } = toolInvocation.result.data;
@@ -109,7 +109,7 @@ const PurePreviewMessage = ({
             }
           }
         } catch (error) {
-          console.error('Error processing deep research update:', error);
+          console.error("Error processing deep research update:", error);
         }
       });
     }
@@ -125,31 +125,31 @@ const PurePreviewMessage = ({
   return (
     <AnimatePresence>
       <motion.div
-        className="w-full mx-auto max-w-3xl px-4 group/message"
+        className='w-full mx-auto max-w-3xl px-4 group/message'
         initial={{ y: 5, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         data-role={message.role}
       >
         <div
           className={cn(
-            'flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl',
+            "flex gap-4 w-full group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl",
             {
-              'w-full': mode === 'edit',
-              'group-data-[role=user]/message:w-fit': mode !== 'edit',
-            },
+              "w-full": mode === "edit",
+              "group-data-[role=user]/message:w-fit": mode !== "edit",
+            }
           )}
         >
-          {message.role === 'assistant' && (
-            <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background">
-              <div className="translate-y-px">
+          {message.role === "assistant" && (
+            <div className='size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border bg-background'>
+              <div className='translate-y-px'>
                 <SparklesIcon size={14} />
               </div>
             </div>
           )}
 
-          <div className="flex flex-col gap-2 w-full">
+          <div className='flex flex-col gap-2 w-full'>
             {message.experimental_attachments && (
-              <div className="flex flex-row justify-end gap-2">
+              <div className='flex flex-row justify-end gap-2'>
                 {message.experimental_attachments.map((attachment) => (
                   <PreviewAttachment
                     key={attachment.url}
@@ -159,16 +159,16 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.content && mode === 'view' && (
-              <div className="flex flex-row gap-2 items-start">
-                {message.role === 'user' && !isReadonly && (
+            {message.content && mode === "view" && (
+              <div className='flex flex-row gap-2 items-start'>
+                {message.role === "user" && !isReadonly && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
-                        variant="ghost"
-                        className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
+                        variant='ghost'
+                        className='px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100'
                         onClick={() => {
-                          setMode('edit');
+                          setMode("edit");
                         }}
                       >
                         <PencilEditIcon />
@@ -179,9 +179,9 @@ const PurePreviewMessage = ({
                 )}
 
                 <div
-                  className={cn('flex flex-col gap-4', {
-                    'bg-primary text-primary-foreground px-3 py-2 rounded-xl':
-                      message.role === 'user',
+                  className={cn("flex flex-col gap-4", {
+                    "bg-primary text-primary-foreground px-3 py-2 rounded-xl":
+                      message.role === "user",
                   })}
                 >
                   <Markdown>{message.content as string}</Markdown>
@@ -189,9 +189,9 @@ const PurePreviewMessage = ({
               </div>
             )}
 
-            {message.content && mode === 'edit' && (
-              <div className="flex flex-row gap-2 items-start">
-                <div className="size-8" />
+            {message.content && mode === "edit" && (
+              <div className='flex flex-row gap-2 items-start'>
+                <div className='size-8' />
 
                 <MessageEditor
                   key={message.id}
@@ -204,35 +204,35 @@ const PurePreviewMessage = ({
             )}
 
             {message.toolInvocations && message.toolInvocations.length > 0 && (
-              <div className="flex flex-col gap-4">
+              <div className='flex flex-col gap-4'>
                 {message.toolInvocations.map((toolInvocation) => {
                   const { toolName, toolCallId, state, args } = toolInvocation;
 
-                  if (state === 'result') {
+                  if (state === "result") {
                     const { result } = toolInvocation;
 
                     return (
                       <div key={toolCallId}>
-                        {toolName === 'getWeather' ? (
+                        {toolName === "getWeather" ? (
                           <Weather weatherAtLocation={result} />
-                        ) : toolName === 'createDocument' ? (
+                        ) : toolName === "createDocument" ? (
                           <DocumentPreview
                             isReadonly={isReadonly}
                             result={result}
                           />
-                        ) : toolName === 'updateDocument' ? (
+                        ) : toolName === "updateDocument" ? (
                           <DocumentToolResult
-                            type="update"
+                            type='update'
                             result={result}
                             isReadonly={isReadonly}
                           />
-                        ) : toolName === 'requestSuggestions' ? (
+                        ) : toolName === "requestSuggestions" ? (
                           <DocumentToolResult
-                            type="request-suggestions"
+                            type='request-suggestions'
                             result={result}
                             isReadonly={isReadonly}
                           />
-                        ) : toolName === 'search' ? (
+                        ) : toolName === "search" ? (
                           <SearchResults
                             results={result.data.map((item: any) => ({
                               title: item.title,
@@ -241,10 +241,10 @@ const PurePreviewMessage = ({
                               source: new URL(item.url).hostname,
                             }))}
                           />
-                        ) : toolName === 'extract' ? (
+                        ) : toolName === "extract" ? (
                           <ExtractResults
                             results={
-                              state === 'result' && result.data
+                              state === "result" && result.data
                                 ? Array.isArray(result.data)
                                   ? result.data.map((item: any) => ({
                                       url: item.url,
@@ -258,16 +258,16 @@ const PurePreviewMessage = ({
                             }
                             isLoading={false}
                           />
-                        ) : toolName === 'scrape' ? (
+                        ) : toolName === "scrape" ? (
                           <ScrapeResults
                             url={args.url}
                             data={result.data}
                             isLoading={false}
                           />
-                        ) : toolName === 'deepResearch' ? (
-                          <div className="text-sm text-muted-foreground">
+                        ) : toolName === "deepResearch" ? (
+                          <div className='text-sm text-muted-foreground'>
                             {result.success
-                              ? 'Research completed successfully.'
+                              ? "Research completed successfully."
                               : `Research may have failed: ${result.error}`}
                           </div>
                         ) : (
@@ -280,34 +280,34 @@ const PurePreviewMessage = ({
                     <div
                       key={toolCallId}
                       className={cx({
-                        skeleton: ['getWeather'].includes(toolName),
+                        skeleton: ["getWeather"].includes(toolName),
                       })}
                     >
-                      {toolName === 'getWeather' ? (
+                      {toolName === "getWeather" ? (
                         <Weather />
-                      ) : toolName === 'createDocument' ? (
+                      ) : toolName === "createDocument" ? (
                         <DocumentPreview isReadonly={isReadonly} args={args} />
-                      ) : toolName === 'updateDocument' ? (
+                      ) : toolName === "updateDocument" ? (
                         <DocumentToolCall
-                          type="update"
+                          type='update'
                           args={args}
                           isReadonly={isReadonly}
                         />
-                      ) : toolName === 'requestSuggestions' ? (
+                      ) : toolName === "requestSuggestions" ? (
                         <DocumentToolCall
-                          type="request-suggestions"
+                          type='request-suggestions'
                           args={args}
                           isReadonly={isReadonly}
                         />
-                      ) : toolName === 'extract' ? (
+                      ) : toolName === "extract" ? (
                         <ExtractResults results={[]} isLoading={true} />
-                      ) : toolName === 'scrape' ? (
+                      ) : toolName === "scrape" ? (
                         <ScrapeResults
                           url={args.url}
-                          data=""
+                          data=''
                           isLoading={true}
                         />
-                      ) : toolName === 'deepResearch' ? (
+                      ) : toolName === "deepResearch" ? (
                         <DeepResearchProgress
                           state={state}
                           activity={
@@ -326,7 +326,7 @@ const PurePreviewMessage = ({
                                   }>;
                                 };
                               }
-                            ).state === 'streaming' &&
+                            ).state === "streaming" &&
                             (toolInvocation as any).delta?.activity
                               ? [
                                   ...((toolInvocation as any).delta.activity ||
@@ -366,40 +366,40 @@ export const PreviewMessage = memo(
     if (
       !equal(
         prevProps.message.toolInvocations,
-        nextProps.message.toolInvocations,
+        nextProps.message.toolInvocations
       )
     )
       return false;
     if (!equal(prevProps.vote, nextProps.vote)) return false;
 
     return true;
-  },
+  }
 );
 
 export const ThinkingMessage = () => {
-  const role = 'assistant';
+  const role = "assistant";
 
   return (
     <motion.div
-      className="w-full mx-auto max-w-3xl px-4 group/message "
+      className='w-full mx-auto max-w-3xl px-4 group/message '
       initial={{ y: 5, opacity: 0 }}
       animate={{ y: 0, opacity: 1, transition: { delay: 1 } }}
       data-role={role}
     >
       <div
         className={cx(
-          'flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl',
+          "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
           {
-            'group-data-[role=user]/message:bg-muted': true,
-          },
+            "group-data-[role=user]/message:bg-muted": true,
+          }
         )}
       >
-        <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
+        <div className='size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border'>
           <SparklesIcon size={14} />
         </div>
 
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex flex-col gap-4 text-muted-foreground">
+        <div className='flex flex-col gap-2 w-full'>
+          <div className='flex flex-col gap-4 text-muted-foreground'>
             Thinking...
           </div>
         </div>
@@ -424,9 +424,9 @@ const DeepResearchProgress = ({
   }>;
 }) => {
   const { state: deepResearchState } = useDeepResearch();
-  const [lastActivity, setLastActivity] = useState<string>('');
+  const [lastActivity, setLastActivity] = useState<string>("");
   const [startTime] = useState<number>(Date.now());
-  const maxDuration = 5 * 60 * 1000; // 5 minutes in milliseconds
+  const maxDuration = 1 * 60 * 1000; // 5 minutes in milliseconds
   const [currentTime, setCurrentTime] = useState(Date.now());
 
   useEffect(() => {
@@ -460,7 +460,7 @@ const DeepResearchProgress = ({
       (deepResearchState.completedSteps /
         deepResearchState.totalExpectedSteps) *
         100,
-      100,
+      100
     );
   }, [deepResearchState.completedSteps, deepResearchState.totalExpectedSteps]);
 
@@ -472,19 +472,19 @@ const DeepResearchProgress = ({
 
   // Get current phase
   const currentPhase = useMemo(() => {
-    if (!activity.length) return '';
+    if (!activity.length) return "";
     const current = activity[activity.length - 1];
     switch (current.type) {
-      case 'search':
-        return 'Searching';
-      case 'extract':
-        return 'Extracting';
-      case 'analyze':
-        return 'Analyzing';
-      case 'synthesis':
-        return 'Synthesizing';
+      case "search":
+        return "Searching";
+      case "extract":
+        return "Extracting";
+      case "analyze":
+        return "Analyzing";
+      case "synthesis":
+        return "Synthesizing";
       default:
-        return 'Researching';
+        return "Researching";
     }
   }, [activity]);
 
@@ -492,32 +492,32 @@ const DeepResearchProgress = ({
   const formatTime = (ms: number) => {
     const minutes = Math.floor(ms / 60000);
     const seconds = Math.floor((ms % 60000) / 1000);
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
   };
 
   const timeUntilTimeout = Math.max(maxDuration - (currentTime - startTime), 0);
 
   return (
-    <div className="w-full space-y-2">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <div className="flex flex-col gap-1">
+    <div className='w-full space-y-2'>
+      <div className='flex items-center justify-between text-sm text-muted-foreground'>
+        <div className='flex flex-col gap-1'>
           <span>Research in progress...</span>
           {/* Depth: {deepResearchState.currentDepth}/{deepResearchState.maxDepth} */}
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className='flex flex-col items-end gap-1'>
           <span>{Math.round(progress)}%</span>
-          <span className="text-xs">
+          <span className='text-xs'>
             {/* Step {deepResearchState.completedSteps}/{deepResearchState.totalExpectedSteps} */}
           </span>
         </div>
       </div>
-      <Progress value={progress} className="w-full" />
-      <div className="flex items-center justify-end text-xs text-muted-foreground mt-2">
+      <Progress value={progress} className='w-full' />
+      <div className='flex items-center justify-end text-xs text-muted-foreground mt-2'>
         <span>Time until timeout: {formatTime(timeUntilTimeout)}</span>
         {/* <span>{Math.round(timeProgress)}% of max time used</span> */}
       </div>
       {/* <Progress value={timeProgress} className="w-full" /> */}
-      <div className="text-xs text-muted-foreground">{lastActivity}</div>
+      <div className='text-xs text-muted-foreground'>{lastActivity}</div>
     </div>
   );
 };
